@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Day</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Dancing+Script:wght@700&display=swap');
+
+        :root {
+            --primary-color: #ff4d6d;
+            --bg-color: #fff0f5; /* Light Pink */
+            --text-color: #590d22;
+            --dark-bg: #2b102f;
+            --dark-text: #fff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            text-align: center;
+            overflow-x: hidden;
+            transition: background 1s, color 1s;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- SCREEN MANAGER --- */
+        .screen {
+            display: none; /* All screens hidden by default */
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        .active { display: block; } /* Only the active screen is shown */
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- SCREEN 1: COUNTDOWN --- */
+        h1.big-title { font-size: 2.5rem; margin-bottom: 10px; }
+        p.subtitle { font-size: 1rem; color: #a4133c; margin-bottom: 30px; }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .time-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            min-width: 70px;
+        }
+
+        .time-box span {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .time-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        /* --- SCREEN 2: MODAL POPUP --- */
+        .modal-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4); }
+
+        /* --- SCREEN 3: CELEBRATION --- */
+        
+        /* Bunting Flags (The triangles at the top) */
+        .bunting-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .flag {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 40px solid;
+            margin: 0 5px;
+            animation: sway 2s infinite alternate ease-in-out;
+            transform-origin: top;
+        }
+
+        .flag:nth-child(odd) { border-top-color: #ff006e; animation-delay: 0.1s; }
+        .flag:nth-child(even) { border-top-color: #3a86ff; animation-delay: 0.3s; }
+        .flag:nth-child(3n) { border-top-color: #ffbe0b; animation-delay: 0.5s; }
+
+        @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+
+        .lights {
+            position: fixed;
+            top: 0px; /* Moved down slightly */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            z-index: 9;
+            opacity: 0; /* Hidden until lights turned on */
+            transition: opacity 1s;
+            pointer-events: none;
+        }
+
+        .bulb {
+            width: 15px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ccc;
+            position: relative;
+        }
+        .bulb::before { /* The wire */
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            width: 30px;
+            height: 10px;
+            border-bottom: 2px solid #555;
+            transform: translateX(-50%);
+            border-radius: 50%;
+        }
+
+        body.dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+        }
+        
+        body.dark-mode .lights { opacity: 1; }
+        
+        body.dark-mode .bulb:nth-child(odd) { background: #ff595e; box-shadow: 0 0 15px #ff595e; animation: flash 1s infinite alternate; }
+        body.dark-mode .bulb:nth-child(even) { background: #8ac926; box-shadow: 0 0 15px #8ac926; animation: flash 1.4s infinite alternate; }
+        
+        @keyframes flash { from { opacity: 0.4; } to { opacity: 1; } }
+
+        .celebrate-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            margin-top: 50px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            margin: 30px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .envelope-wrapper {
+            margin-top: 50px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            perspective: 1000px;
+        }
+        
+        .envelope {
+            width: 200px;
+            height: 140px;
+            background: #ff4757;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.5s;
+        }
+        
+        .envelope:hover { transform: translateY(-10px); }
+
+        .lid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-top: 70px solid #ff6b81;
+            transform-origin: top;
+            transition: transform 0.5s;
+            z-index: 3;
+        }
+
+        .envelope.open .lid {
+            transform: rotateX(180deg);
+        }
+
+        .card {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 180px;
+            height: 120px;
+            background: white;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: top 0.5s;
+            z-index: 1;
+        }
+
+        .envelope.open .card {
+            top: -100px;
+            z-index: 2;
+        }
+
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 70px solid #ff4757;
+            z-index: 3;
+        }
+        
+        .envelope-side {
+             position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 100px solid #ff6b81;
+            border-top: 70px solid transparent;
+            border-bottom: 70px solid transparent;
+             z-index: 2;
+        }
+         .envelope-side-r {
+             position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-right: 100px solid #ff6b81;
+            border-top: 70px solid transparent;
+            border-bottom: 70px solid transparent;
+             z-index: 2;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-countdown" class="screen active">
+        <h1 class="big-title">Counting down to<br>Sethuuu's Day 💙</h1>
+        <p class="subtitle">You mean more to me than words can explain</p>
+        
+        <div class="timer-container">
+            <div class="time-box">
+                <span id="d">00</span>
+                <div class="time-label">Days</div>
+            </div>
+            <div class="time-box">
+                <span id="h">00</span>
+                <div class="time-label">Hours</div>
+            </div>
+            <div class="time-box">
+                <span id="m">00</span>
+                <div class="time-label">Mins</div>
+            </div>
+            <div class="time-box">
+                <span id="s">00</span>
+                <div class="time-label">Secs</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-modal" class="screen">
+        <div class="modal-card">
+            <h1 class="big-title">Happy Birthday! 🎉</h1>
+            <p>It's finally here! Are you ready for your surprise?</p>
+            <button class="btn" onclick="goToCelebration()">Let's Celebrate!</button>
+        </div>
+    </div>
+
+    <div id="screen-celebration" class="screen">
+        
+        <div class="bunting-container">
+            <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+            <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+            <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+            <div class="flag"></div><div class="flag"></div><div class="flag"></div>
+        </div>
+
+        <div class="lights">
+            <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+            <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+            <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+        </div>
+
+        <h1 class="celebrate-title">Happy Birthday Sethuuu💙!</h1>
+        <p>Turn up the volume and click the buttons below!</p>
+
+        <div class="controls">
+            <button class="btn" onclick="toggleLights()">💡 Turn On Lights</button>
+            <button class="btn" onclick="playMusic()">🎵 Play Music</button>
+            <button class="btn" onclick="blastConfetti()">🎊 Confetti</button>
+        </div>
+
+        <div class="envelope-wrapper">
+            <div class="envelope" onclick="window.location.href='message.html'">
+                <div class="lid"></div>
+                <div class="card">
+                    Your smile is the most beautiful thing in the world. Never stop smiling! ❤️
+                </div>
+                <div class="envelope-side"></div>
+                <div class="envelope-side-r"></div>
+                <div class="envelope-front"></div>
+            </div>
+        </div>
+        <p style="margin-top:20px; font-size:0.8rem; color:#888;">(Click the envelope to read my message)</p>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Change this date to your target date!
+        // Format: "Month Day, Year Time"
+        const targetDate = new Date("April 22, 2026 00:00:00").getTime(); 
+
+        // --- LOGIC ---
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Update Countdown UI
+            document.getElementById("d").innerText = d < 10 ? "0" + d : d;
+            document.getElementById("h").innerText = h < 10 ? "0" + h : h;
+            document.getElementById("m").innerText = m < 10 ? "0" + m : m;
+            document.getElementById("s").innerText = s < 10 ? "0" + s : s;
+
+            // If Countdown finishes
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                switchScreen('screen-modal');
+            }
+        }, 1000);
+
+        // Helper to switch screens
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Functions for the Buttons
+        function goToCelebration() {
+            switchScreen('screen-celebration');
+            playMusic(); // Try to auto-play music on transition
+            blastConfetti();
+        }
+
+        function toggleLights() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function playMusic() {
+            const audio = document.getElementById("bg-music");
+            if(audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        function blastConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+        
+        // DEV MODE: Uncomment this line to skip countdown for testing
+        // switchScreen('screen-modal'); 
+
+    </script>
+</body>
+</html>
